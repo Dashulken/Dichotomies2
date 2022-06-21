@@ -1,0 +1,94 @@
+import numpy as np 
+import pandas as pd
+from sympy import *
+x = symbols('x', integer=True)
+def f(x): 
+    return 5*x**2 - 4*x + 1 #Наша функция
+print ("Задайте начальный интервал");
+a = float(input()); 
+b = float(input()); 
+print ("Задайте погрешность");
+e = float(input());
+n = 0;
+n1 = 0
+#Иcходный метод
+def f1(x):
+    return 10*x - 4 #Производная функции
+def dih(a, b, e, n): #Сам метод приближения
+    list_hehe = []
+    if f1(a) * f1(b) < 0: #Проверка на наличие корня на интервале
+        while (abs(b - a) >= e):
+            x = (a + b)/2
+            n += 1
+            y1 = f(x - e)
+            y2 = f(x + e)
+            if y1 < y2:
+                b = x
+            else:
+                a = x
+        x = (a + b)/2;
+        y3 = f(x);
+        list_hehe.append(x) 
+        list_hehe.append(y3)
+        list_hehe.append(n)
+        print ("x=", x, "f(x)=", y3, "Количество итераций:", n)
+        return(list_hehe)
+    else: 
+        print ("Корень не лежит на данном интервале");
+dih(a, b, e, n)
+#Метод с численной производной
+def f2(x,per):
+    return (diff(f(x),x).subs(x,per))
+def dih1(a, b, e, n1): #Сам метод приближения
+    list_hehe1 = []
+    if f2(x,a) * f2(x,b) < 0: #Проверка на наличие корня на интервале
+        while f2(x,a) < f2(x,(a - e*f2(x,a))):
+            x1 = (a + b)/2
+            n1 += 1
+            y1 = f(x1 - e)
+            y2 = f(x1 + e)
+            if y1 < y2:
+                b = x1;
+                x1 = (a + b)/2;
+                y4 = f(x1);
+            else:
+                a = x1
+                x1 = (a + b)/2;
+                y4 = f(x1);
+        x1 = (a + b)/2;
+        y4 = f(x1);
+        list_hehe1.append(x1) 
+        list_hehe1.append(y4)
+        list_hehe1.append(n1)
+        print ("x=", x1, "f(x)=", y4, "Количество итераций:", n1)
+        return(list_hehe1)
+    else: 
+        print ("Корень не лежит на данном интервале");
+dih1(a, b, e, n1)
+#Попытка сделать табличку со вторым методом, но он сопротивляется (если брать функцию с исходного метода, то всё хорошо)
+dfError = pd.DataFrame({
+    "ε": pd.Series(dtype='float64'),
+    "Количество итераций": pd.Series(dtype='float64'),
+    "x": pd.Series(dtype='float64'),
+    "f(x)": pd.Series(dtype='float64')
+})
+e = np.array([0.1, 0.5, 0.01])
+nn = np.zeros(3)
+x = np.zeros(3)
+y = np.zeros(3)
+
+
+for i in range(len(e)):
+    list_data = dih1(a, b, e[i], 0)
+    x[i]=list_data[0]
+    y[i]=list_data[1]
+    nn[i]=list_data[2]
+    
+    
+dfCompare = pd.DataFrame({
+    "ε": pd.Series(e),
+    "Количество итераций": pd.Series(nn),
+    "x": pd.Series(x),
+    "f(x)": pd.Series(y),
+})
+dfCompare
